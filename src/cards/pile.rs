@@ -56,6 +56,19 @@ impl Pile {
         Some(self.cards.swap_remove(self.accessible))
     }
 
+    pub fn pop_and_return(&mut self) -> Option<Card> {
+        if self.cards.is_empty() {
+            return None;
+        }
+        if self.accessible <= 0 {
+            self.shuffle();
+        }
+        self.accessible -= 1;
+        let last_index = self.cards.len() - 1;
+        self.cards.swap(self.accessible, last_index);
+        Some(self.cards[last_index])
+    }
+
     pub fn seek(&mut self) -> Option<Card> {
         if self.cards.is_empty() {
             return None;
@@ -175,5 +188,11 @@ mod tests {
         assert_eq!(pile.count_total(), 5);
         assert_eq!(pile.count_accessible(), 4);
         assert_eq!(pile.seek(), Some(f));
+
+        let popped = pile.pop_and_return();
+        assert_eq!(popped, Some(f));
+        assert_eq!(pile.count_total(), 5);
+        assert_eq!(pile.count_accessible(), 3);
+        assert_eq!(pile.seek(), Some(c));
     }
 }

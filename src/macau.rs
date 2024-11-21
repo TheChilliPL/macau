@@ -1,6 +1,7 @@
 use crate::cards::deck::generate_deck;
 use crate::cards::hand::{Hand, HasHand, SortedCard};
 use crate::cards::pile::Pile;
+use crate::cards::Card;
 use crate::macau::variant::MacauVariant;
 use std::fmt::{Debug, Formatter};
 
@@ -51,7 +52,24 @@ impl MacauGame {
             }
         }
 
+        while game.requires_pop_back() {
+            // eprintln!(
+            //     "Card {} cannot start game. Popping back.",
+            //     game.pile.seek().unwrap().name().unwrap()
+            // );
+            game.pile.pop_and_return();
+        }
+
         game
+    }
+
+    pub fn requires_pop_back(&mut self) -> bool {
+        let card = self.pile.seek();
+        !self.can_start_game(card.unwrap())
+    }
+
+    pub fn can_start_game(&self, card: Card) -> bool {
+        card.is_standard_card() && !self.variant.is_action_card(card)
     }
 }
 
